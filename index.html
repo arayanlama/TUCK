@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TUCK — We Believe in Dreams</title>
+  <meta name="description" content="TUCK — We Believe in Dreams. T-shirts, bookmarks, canvas and more.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#"><img src="assets/logo.png" alt="TUCK"></a>
+    <nav>
+      <a href="#shop">Shop</a>
+      <a href="#story">Our story</a>
+      <button class="cart-button" id="cartButton">Cart <span id="cartCount">0</span></button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">TUCK</p>
+        <h1>WE BELIEVE<br>IN DREAMS.</h1>
+        <p class="hero-text">Objects to wear, keep and live with.</p>
+        <a class="button" href="#shop">Shop the collection</a>
+      </div>
+      <div class="hero-mark">
+        <img src="assets/logo.png" alt="">
+      </div>
+    </section>
+
+    <section class="intro">
+      <p class="eyebrow">THE COLLECTION</p>
+      <h2>Made for people<br>who still dream.</h2>
+      <p>Simple pieces. Honest ideas. A little bit of TUCK.</p>
+    </section>
+
+    <section id="shop" class="shop">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">SHOP</p>
+          <h2>Featured pieces</h2>
+        </div>
+        <div class="filters">
+          <button class="filter active" data-filter="all">All</button>
+          <button class="filter" data-filter="tshirts">T-shirts</button>
+          <button class="filter" data-filter="bookmarks">Bookmarks</button>
+          <button class="filter" data-filter="canvas">Canvas</button>
+          <button class="filter" data-filter="caps">Caps</button>
+        </div>
+      </div>
+
+      <div class="grid" id="productGrid">
+        <article class="product" data-category="caps">
+          <div class="product-image"><img src="assets/khaki-cap.jpg" alt="TUCK Khaki Cap"></div>
+          <div class="product-info">
+            <div><h3>TUCK Khaki Cap</h3><p>Classic / Khaki</p></div>
+            <strong>₹—</strong>
+          </div>
+          <button class="add" data-name="TUCK Khaki Cap">Add to cart</button>
+        </article>
+
+        <article class="product" data-category="caps">
+          <div class="product-image"><img src="assets/please-keep-cap.png" alt="Please Keep the Word of Your Mouth cap"></div>
+          <div class="product-info">
+            <div><h3>Please Keep the Word</h3><p>Statement Cap</p></div>
+            <strong>₹—</strong>
+          </div>
+          <button class="add" data-name="Please Keep the Word Cap">Add to cart</button>
+        </article>
+
+        <article class="product" data-category="canvas">
+          <div class="product-image artwork"><img src="assets/fear-in-dreams.png" alt="Fear in Dreams artwork"></div>
+          <div class="product-info">
+            <div><h3>Fear in Dreams</h3><p>Canvas / Artwork</p></div>
+            <strong>₹—</strong>
+          </div>
+          <button class="add" data-name="Fear in Dreams Canvas">Add to cart</button>
+        </article>
+
+        <article class="product coming" data-category="tshirts">
+          <div class="placeholder">T-SHIRT<br><span>COMING SOON</span></div>
+          <div class="product-info"><div><h3>TUCK T-shirts</h3><p>New pieces arriving soon</p></div></div>
+        </article>
+
+        <article class="product coming" data-category="bookmarks">
+          <div class="placeholder">BOOKMARKS<br><span>COMING SOON</span></div>
+          <div class="product-info"><div><h3>TUCK Bookmarks</h3><p>Small things for big dreams</p></div></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="story" class="story">
+      <div>
+        <p class="eyebrow">OUR STORY</p>
+        <h2>WE BELIEVE<br>IN DREAMS.</h2>
+      </div>
+      <p>TUCK is built around a simple idea: dreams deserve something tangible. We make things you can wear, keep and put on your wall — pieces that carry an idea with them.</p>
+    </section>
+
+    <section class="newsletter">
+      <p class="eyebrow">STAY TUCKED IN</p>
+      <h2>New pieces.<br>No noise.</h2>
+      <form onsubmit="event.preventDefault(); alert('Thanks — we’ll keep you posted.');">
+        <input type="email" placeholder="Your email address" required>
+        <button class="button" type="submit">Join</button>
+      </form>
+    </section>
+  </main>
+
+  <aside class="cart" id="cart">
+    <div class="cart-head"><h2>Your cart</h2><button id="closeCart">×</button></div>
+    <div id="cartItems" class="cart-items"><p class="empty">Your cart is empty.</p></div>
+    <div class="cart-foot">
+      <p><span>Items</span><strong id="cartTotal">0</strong></p>
+      <button class="button full" id="checkout">Checkout</button>
+      <small>Payment checkout will be connected after the storefront is deployed.</small>
+    </div>
+  </aside>
+  <div class="overlay" id="overlay"></div>
+
+  <footer>
+    <img src="assets/logo.png" alt="TUCK">
+    <p>WE BELIEVE IN DREAMS.</p>
+    <p>© 2026 TUCK</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
