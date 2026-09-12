@@ -9,7 +9,7 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="#"><img src="logo.png" alt="TUCK"></a>
+    <a class="brand" href="#"><img src="assets/logo.png" alt="TUCK"></a>
     <nav>
       <a href="#shop">Shop</a>
       <a href="#story">Our story</a>
@@ -26,7 +26,7 @@
         <a class="button" href="#shop">Shop the collection</a>
       </div>
       <div class="hero-mark">
-        <img src="logo.png" alt="">
+        <img src="assets/logo.png" alt="">
       </div>
     </section>
 
@@ -52,48 +52,76 @@
       </div>
 
       <div class="grid" id="productGrid">
+
         <article class="product" data-category="caps">
-          <div class="product-image"><img src="khaki-cap.jpg" alt="TUCK Khaki Cap"></div>
+          <div class="product-image">
+            <img src="assets/khaki-cap.jpg" alt="TUCK Khaki Cap">
+          </div>
           <div class="product-info">
-            <div><h3>TUCK Khaki Cap</h3><p>Classic / Khaki</p></div>
+            <div>
+              <h3>TUCK Khaki Cap</h3>
+              <p>Classic / Khaki</p>
+            </div>
             <strong>₹599</strong>
           </div>
           <button class="add" data-name="TUCK Khaki Cap">Add to cart</button>
         </article>
 
         <article class="product" data-category="caps">
-          <div class="product-image"><img src="please-keep-cap.png" alt="Please Keep the Word of Your Mouth cap"></div>
+          <div class="product-image">
+            <img src="assets/please-keep-cap.png" alt="Please Keep the Word of Your Mouth cap">
+          </div>
           <div class="product-info">
-            <div><h3>Please Keep the Word</h3><p>Statement Cap</p></div>
+            <div>
+              <h3>Please Keep the Word</h3>
+              <p>Statement Cap</p>
+            </div>
             <strong>₹599</strong>
           </div>
           <button class="add" data-name="Please Keep the Word Cap">Add to cart</button>
         </article>
 
         <article class="product" data-category="canvas">
-          <div class="product-image artwork"><img src="fear-in-dreams.png" alt="Fear in Dreams artwork"></div>
+          <div class="product-image artwork">
+            <img src="assets/fear-in-dreams.png" alt="Fear in Dreams artwork">
+          </div>
           <div class="product-info">
-            <div><h3>Fear in Dreams</h3><p>Bookmark</p></div>
+            <div>
+              <h3>Fear in Dreams</h3>
+              <p>Bookmark</p>
+            </div>
             <strong>₹99</strong>
           </div>
           <button class="add" data-name="99 Bookmark">Add to cart</button>
         </article>
 
         <article class="product" data-category="tshirts">
-          <div class="product-image artwork"><img src="Fear Kills.png" alt="Fear Kills artwork"></div>
+          <div class="product-image artwork">
+            <img src="assets/Fear Kills.png" alt="Fear Kills artwork">
+          </div>
           <div class="product-info">
-              <div><h3>Fear Kills</h3><p>Statement tshirts</p></div>
+            <div>
+              <h3>Fear Kills</h3>
+              <p>Statement tshirts</p>
+            </div>
             <strong>₹999</strong>
           </div>
           <button class="add" data-name="Fear Kills">Add to cart</button>
         </article>
-                                                
+
+      </div>
+    </section>
+
     <section id="story" class="story">
       <div>
         <p class="eyebrow">OUR STORY</p>
         <h2>WE BELIEVE<br>IN DREAMS.</h2>
       </div>
-      <p>TUCK is built around a simple idea: dreams deserve something tangible. We make things you can wear, keep and put on your wall — pieces that carry an idea with them.</p>
+      <p>
+        TUCK is built around a simple idea: dreams deserve something tangible.
+        We make things you can wear, keep and put on your wall — pieces that
+        carry an idea with them.
+      </p>
     </section>
 
     <section class="newsletter">
@@ -107,18 +135,26 @@
   </main>
 
   <aside class="cart" id="cart">
-    <div class="cart-head"><h2>Your cart</h2><button id="closeCart">×</button></div>
-    <div id="cartItems" class="cart-items"><p class="empty">Your cart is empty.</p></div>
+    <div class="cart-head">
+      <h2>Your cart</h2>
+      <button id="closeCart">×</button>
+    </div>
+
+    <div id="cartItems" class="cart-items">
+      <p class="empty">Your cart is empty.</p>
+    </div>
+
     <div class="cart-foot">
       <p><span>Items</span><strong id="cartTotal">0</strong></p>
       <button class="button full" id="checkout">Checkout</button>
       <small>Payment checkout will be connected after the storefront is deployed.</small>
     </div>
   </aside>
+
   <div class="overlay" id="overlay"></div>
 
   <footer>
-    <img src="logo.png" alt="TUCK">
+    <img src="assets/logo.png" alt="TUCK">
     <p>WE BELIEVE IN DREAMS.</p>
     <p>© 2026 TUCK</p>
   </footer>
