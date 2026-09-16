@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "tuckshop",
+  "main": "./worker.js",
+  "compatibility_date": "2026-09-16",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "secrets": {
+    "required": ["RAZORPAY_KEY_ID", "RAZORPAY_KEY_SECRET"]
+  }
+}

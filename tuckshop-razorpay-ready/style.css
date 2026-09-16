@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+:root{--green:#5e9f69;--black:#111;--muted:#777;--line:#e8e8e8;--paper:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--black);font-family:"DM Sans",Arial,sans-serif}
+.site-header{height:82px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 5vw;position:sticky;top:0;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);z-index:10}
+.brand img{width:82px;height:auto;display:block}
+.site-header nav{display:flex;gap:30px;align-items:center}.site-header a,.cart-button{font:500 14px inherit;color:var(--black);text-decoration:none;background:none;border:0;cursor:pointer}.cart-button span{display:inline-flex;min-width:20px;height:20px;padding:0 5px;align-items:center;justify-content:center;border-radius:99px;background:var(--green);color:white;font-size:11px;margin-left:5px}
+.hero{min-height:calc(100vh - 82px);display:grid;grid-template-columns:1.05fr .95fr;align-items:center;padding:7vw 8vw;border-bottom:1px solid var(--line)}.hero-copy{max-width:680px}.eyebrow{font-size:11px;letter-spacing:.18em;font-weight:700;margin:0 0 18px}.hero h1,.intro h2,.story h2,.newsletter h2{font-family:"Space Grotesk",Arial,sans-serif;letter-spacing:-.055em;line-height:.9;margin:0;font-size:clamp(56px,8vw,125px)}.hero-text{font-size:18px;color:var(--muted);margin:28px 0}.button{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--black);background:var(--black);color:white;text-decoration:none;padding:14px 22px;font:700 12px "DM Sans";letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.button:hover{background:var(--green);border-color:var(--green)}.hero-mark{display:flex;justify-content:center;align-items:center}.hero-mark img{width:min(360px,65%);filter:drop-shadow(0 25px 45px rgba(0,0,0,.08))}
+.intro{padding:12vw 8vw 9vw;max-width:1100px}.intro h2{font-size:clamp(48px,7vw,92px);margin-bottom:28px}.intro>p:last-child{color:var(--muted);font-size:17px}
+.shop{padding:5vw 5vw 10vw}.section-head{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:35px}.section-head h2{font:700 38px "Space Grotesk";letter-spacing:-.04em;margin:0}.filters{display:flex;gap:8px;flex-wrap:wrap}.filter{border:1px solid var(--line);background:white;padding:9px 13px;font:500 12px inherit;cursor:pointer}.filter.active,.filter:hover{background:var(--black);color:white;border-color:var(--black)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch}.product{display:flex;flex-direction:column}.product-image{aspect-ratio:1/1;background:#f1f1f1;overflow:hidden}.product-image img{width:100%;height:100%;object-fit:cover;display:block}.product-image.artwork img{object-fit:contain;background:#fff}
+@media(max-width:1024px) and (min-width:801px){.grid{grid-template-columns:repeat(2,1fr);gap:20px}}
+.thumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:8px}.thumb{width:100%;aspect-ratio:1/1;padding:0;border:1px solid var(--line);background:#f1f1f1;cursor:pointer;overflow:hidden}.thumb img{width:100%;height:100%;object-fit:cover;display:block}.thumb.active{border-color:var(--black);border-width:2px}.thumb:hover{border-color:var(--green)}
+.product-info{display:flex;justify-content:space-between;gap:12px;padding:16px 0 10px;margin-top:auto}.product-info h3{font-size:15px;margin:0 0 5px}.product-info p{margin:0;color:var(--muted);font-size:12px}.product-info strong{font-size:14px}
+.size-picker{margin-bottom:12px}.size-label{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:8px}.size-options{display:flex;gap:8px}.size-btn{flex:1;border:1px solid var(--line);background:#fff;padding:10px 0;font:700 13px "DM Sans";cursor:pointer;color:var(--black)}.size-btn:hover{border-color:var(--black)}.size-btn.active{background:var(--black);color:#fff;border-color:var(--black)}
+.add{width:100%;border:1px solid var(--black);background:white;padding:12px;cursor:pointer;text-transform:uppercase;font-size:11px;letter-spacing:.1em;font-weight:700;transition:background .2s ease,border-color .2s ease,color .2s ease}.add:hover{background:var(--green);color:#fff;border-color:var(--green)}.add.added{background:var(--green);border-color:var(--green);color:#fff}.placeholder{aspect-ratio:1/1;background:#f7f7f7;display:flex;align-items:center;justify-content:center;text-align:center;font:700 32px "Space Grotesk";line-height:.95}.placeholder span{display:block;font:500 10px "DM Sans";letter-spacing:.14em;color:var(--muted);margin-top:12px}.coming .product-info{border-bottom:1px solid var(--line)}
+/* Card-implementation experiment: toggle by adding/removing "card-mode" on .shop. Remove the class to fall back to the plain grid look above. */
+.shop.card-mode .product{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(17,17,17,.05);transition:box-shadow .25s ease,transform .25s ease}
+.shop.card-mode .product:hover{box-shadow:0 18px 34px rgba(17,17,17,.10);transform:translateY(-3px)}
+.shop.card-mode .thumbs{margin-left:14px;margin-right:14px}
+.shop.card-mode .product-info{margin-left:14px;margin-right:14px;padding-top:14px}
+.shop.card-mode .add{width:calc(100% - 28px);margin:0 14px 14px}
+.shop.card-mode .placeholder{border-radius:0}
+.story{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10vw 8vw;display:grid;grid-template-columns:1fr 1fr;gap:8vw;align-items:end}.story h2{font-size:clamp(50px,6vw,85px)}.story>p{font-size:21px;line-height:1.55;color:#444;max-width:520px}
+.newsletter{padding:10vw 8vw}.newsletter h2{font-size:clamp(48px,6vw,80px);margin-bottom:35px}.newsletter form{display:flex;max-width:520px}.newsletter input{flex:1;border:1px solid var(--line);padding:15px;font:14px inherit;outline:none}.newsletter input:focus{border-color:var(--black)}
+footer{border-top:1px solid var(--line);padding:35px 5vw;display:flex;align-items:center;gap:25px;font-size:11px;color:var(--muted);letter-spacing:.08em}footer img{width:60px}footer p{margin:0}
+.cart{position:fixed;right:0;top:0;width:min(430px,92vw);height:100vh;background:white;z-index:30;transform:translateX(100%);transition:.25s;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.1)}.cart.open{transform:translateX(0)}.cart-head{display:flex;justify-content:space-between;align-items:center;padding:25px;border-bottom:1px solid var(--line)}.cart-head h2{margin:0;font:700 24px "Space Grotesk"}.cart-head button{border:0;background:none;font-size:28px;cursor:pointer}.cart-items{padding:25px;flex:1;overflow:auto}.empty{color:var(--muted)}.cart-row{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--line);font-size:13px}.cart-thumb{width:48px;height:48px;border-radius:6px;object-fit:cover;background:#f1f1f1;flex-shrink:0}.cart-thumb-empty{display:inline-block}.cart-row-label{flex:1}.remove{border:0;background:none;text-decoration:underline;cursor:pointer;flex-shrink:0}.cart-foot{padding:25px;border-top:1px solid var(--line)}.cart-foot p{display:flex;justify-content:space-between}.full{width:100%}.cart-foot small{display:block;color:var(--muted);margin-top:12px;line-height:1.4}.overlay{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:20;display:none}.overlay.show{display:block}
+.hidden{display:none!important}
+.checkout-page{position:fixed;inset:0;background:var(--paper);z-index:50;overflow-y:auto}
+.checkout-head{height:82px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 5vw;position:sticky;top:0;background:rgba(255,255,255,.96);backdrop-filter:blur(10px)}
+.checkout-close{border:0;background:none;font-size:28px;cursor:pointer;line-height:1;padding:0}
+.checkout-steps{display:flex;align-items:center;gap:10px;font:700 11px "DM Sans";letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.checkout-step{display:flex;align-items:center;gap:8px;transition:color .2s ease}
+.checkout-step-num{width:22px;height:22px;border-radius:99px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;transition:background .2s ease,border-color .2s ease,color .2s ease}
+.checkout-step.active{color:var(--black)}
+.checkout-step.active .checkout-step-num{background:var(--green);border-color:var(--green);color:#fff}
+.checkout-step.complete{color:var(--green)}
+.checkout-step.complete .checkout-step-num{background:#fff;border-color:var(--green);color:var(--green)}
+.checkout-step-line{width:28px;height:1px;background:var(--line)}
+.checkout-body{padding:6vw 8vw 10vw}
+.checkout-inner{max-width:1100px;margin:0 auto}
+.checkout-inner h1{font-family:"Space Grotesk",Arial,sans-serif;letter-spacing:-.05em;line-height:.92;margin:0 0 40px;font-size:clamp(44px,6.5vw,88px)}
+.checkout-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:60px;align-items:start}
+.req{color:#c0392b}
+.checkout-section-heading{font:700 13px "DM Sans";text-transform:uppercase;letter-spacing:.08em;margin:32px 0 18px;padding-top:24px;border-top:1px solid var(--line)}
+.field-hint{margin:8px 0 0;font-size:12px;color:var(--muted)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.field select{width:100%;border:1px solid var(--line);padding:14px;font:15px "DM Sans";background:#fff;color:var(--black)}
+.field select:invalid{color:var(--muted)}
+.field-add{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:14px 0;margin-bottom:16px;font:500 13px "DM Sans";letter-spacing:.04em;text-transform:uppercase;color:var(--black);cursor:pointer}
+.field-add:hover{color:var(--green)}
+.field-add-icon{font-size:18px;line-height:1}
+.checkout-summary{position:sticky;top:100px;border:1px solid var(--line);border-top:3px solid var(--green);padding:24px}
+.checkout-summary .button{margin-top:20px}
+.checkout-summary .button:disabled{background:#e8e8e8;border-color:#e8e8e8;color:#999;cursor:not-allowed}
+.checkout-summary h3{font:700 15px "Space Grotesk";margin:0 0 14px;text-transform:uppercase;letter-spacing:.06em}
+.checkout-summary #orderSummaryList .cart-row:last-child{border-bottom:0}
+.checkout-summary .note{color:var(--muted);font-size:12px;line-height:1.6;margin:18px 0 0}
+.checkout-form .field{margin-bottom:16px}
+.field label{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:8px}
+.field input,.field textarea{width:100%;border:1px solid var(--line);padding:14px;font:15px "DM Sans";outline:none;resize:vertical}
+.field input:focus,.field textarea:focus{border-color:var(--black)}
+.checkout-confirm{text-align:center;max-width:560px;margin:0 auto}
+.checkout-confirm .eyebrow{text-align:center}
+.checkout-confirm h1{text-align:center}
+.check{width:64px;height:64px;border-radius:99px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 24px}
+.checkout-confirm-tagline{font:700 11px "DM Sans";letter-spacing:.18em;text-transform:uppercase;color:var(--green);margin:0 0 16px}
+.checkout-confirm-copy{color:var(--muted);font-size:15px;line-height:1.6;margin:0 0 28px}
+.order-ticket{position:relative;text-align:left;border:1px solid var(--line);border-radius:14px;padding:26px;margin-bottom:28px;overflow:hidden}
+.order-ticket-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.order-ticket-label{font:700 10px "DM Sans";letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.order-ref{display:inline-block;border:1px dashed var(--line);padding:8px 16px;font:700 14px "DM Sans";letter-spacing:.05em}
+.order-ticket-divider{position:relative;border-top:1px dashed var(--line);margin:18px -26px}
+.order-ticket-divider::before,.order-ticket-divider::after{content:'';position:absolute;top:-13px;width:26px;height:26px;background:var(--paper);border-radius:99px}
+.order-ticket-divider::before{left:-13px}
+.order-ticket-divider::after{right:-13px}
+.order-recap{text-align:left}
+.order-recap .cart-row{font-size:13px}
+.order-recap .cart-row:last-child{border-bottom:0}
+@media(max-width:800px){.checkout-head{height:64px;padding:0 20px}.checkout-body{padding:9vw 6vw 16vw}.checkout-inner h1{margin-bottom:28px}.checkout-grid{grid-template-columns:1fr;gap:36px}.checkout-summary{position:static;padding:18px}.field-row{grid-template-columns:1fr}.checkout-steps{gap:6px}.checkout-step-label{display:none}.checkout-step-line{width:16px}}
+@media(max-width:800px){.site-header{height:68px;padding:0 20px}.site-header nav{gap:15px}.site-header nav>a{display:none}.hero{grid-template-columns:1fr;min-height:auto;padding:18vw 7vw}.hero-mark{padding-top:12vw}.hero-mark img{width:180px}.grid{grid-template-columns:repeat(2,1fr)}.section-head{display:block}.filters{margin-top:20px}.story{grid-template-columns:1fr;gap:35px}.story>p{font-size:17px}.newsletter form{display:block}.newsletter input,.newsletter .button{width:100%}footer{flex-wrap:wrap}}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.hero h1{font-size:56px}
+.cart{right:0;left:0;top:auto;bottom:0;width:100%;height:auto;max-height:78vh;border-radius:16px 16px 0 0;transform:translateY(100%);box-shadow:0 -20px 45px rgba(0,0,0,.15)}
+.cart.open{transform:translateY(0)}
+.cart-head{padding:18px 20px}.cart-head h2{font-size:20px}
+.cart-items{padding:18px 20px}
+.cart-foot{padding:18px 20px}
+.order-ticket{padding:20px}
+.order-ticket-divider{margin:16px -20px}
+.order-ticket-divider::before{left:-13px}
+.order-ticket-divider::after{right:-13px}
+}
+
+/* Very large screens: keep line lengths and layout sane instead of stretching edge-to-edge */
+@media(min-width:1800px){
+  .hero,.intro,.shop,.story,.newsletter,.checkout-body{max-width:1800px;margin-left:auto;margin-right:auto}
+}
+
+/* Short/landscape phones: the full-height hero was forcing extra scrolling with the keyboard/browser chrome eating vertical space */
+@media(max-height:500px) and (max-width:900px){
+  .hero{min-height:auto;padding:10vw 7vw}
+  .hero-mark{padding-top:5vw}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *{transition-duration:.001ms!important;animation-duration:.001ms!important;scroll-behavior:auto!important}
+}
+.add:disabled{opacity:.45;cursor:not-allowed;background:#f4f4f4;border-color:var(--line);color:var(--muted)}
+.add:disabled:hover{background:#f4f4f4;color:var(--muted);border-color:var(--line)}
+.cart-row>strong{font-size:12px;white-space:nowrap}
+#paymentIdNote{margin:0 0 20px;text-align:center}

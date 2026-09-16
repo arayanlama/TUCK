@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TUCK — We Believe in Dreams</title>
+  <meta name="description" content="TUCK — We Believe in Dreams. T-shirts, bookmarks, canvas and more.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#"><img src="assets/logo.jpg" alt="TUCK"></a>
+    <nav>
+      <a href="#shop">Shop</a>
+      <a href="#story">Our story</a>
+      <button class="cart-button" id="cartButton">Cart <span id="cartCount">0</span></button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">TUCK</p>
+        <h1>WE BELIEVE<br>IN DREAMS.</h1>
+        <p class="hero-text">Objects to wear, keep and live with.</p>
+        <a class="button" href="#shop">Shop the collection</a>
+      </div>
+      <div class="hero-mark">
+        <img src="assets/logo.jpg" alt="TUCK">
+      </div>
+    </section>
+
+    <section class="intro">
+      <p class="eyebrow">THE COLLECTION</p>
+      <h2>Made for people<br>who still dream.</h2>
+      <p>Simple pieces. Honest ideas. A little bit of TUCK.</p>
+    </section>
+
+    <section id="shop" class="shop">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">SHOP</p>
+          <h2>Featured pieces</h2>
+        </div>
+        <div class="filters">
+          <button class="filter active" data-filter="all">All</button>
+          <button class="filter" data-filter="tshirts">T-shirts</button>
+          <button class="filter" data-filter="bookmarks">Bookmarks</button>
+          <button class="filter" data-filter="canvas">Canvas</button>
+          <button class="filter" data-filter="caps">Caps</button>
+        </div>
+      </div>
+
+      <div class="grid" id="productGrid">
+
+        <!-- T-SHIRTS -->
+        <article class="product" data-category="tshirts" data-price="999">
+          <div class="product-image gallery"><img class="main-img" src="assets/tees/fear-kills-1-front.jpg" alt="TUCK Fear Kills t-shirt" loading="lazy" decoding="async"></div>
+          <div class="thumbs">
+            <button class="thumb active" data-src="assets/tees/fear-kills-1-front.jpg"><img src="assets/tees/fear-kills-1-front.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-kills-2-back.jpg"><img src="assets/tees/fear-kills-2-back.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-kills-3-detail.jpg"><img src="assets/tees/fear-kills-3-detail.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-kills-4-flat.jpg"><img src="assets/tees/fear-kills-4-flat.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-kills-5-texture.jpg"><img src="assets/tees/fear-kills-5-texture.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-kills-6-folded.jpg"><img src="assets/tees/fear-kills-6-folded.jpg" alt="" loading="lazy" decoding="async"></button>
+          </div>
+          <div class="product-info">
+            <div><h3>Fear Kills</h3><p>Oversized Tee / Off-white</p></div>
+            <strong>₹999</strong>
+          </div>
+          <div class="size-picker">
+            <span class="size-label">Size</span>
+            <div class="size-options">
+              <button type="button" class="size-btn" data-size="S">S</button>
+              <button type="button" class="size-btn active" data-size="M">M</button>
+              <button type="button" class="size-btn" data-size="L">L</button>
+            </div>
+          </div>
+          <button class="add" data-name="Fear Kills Tee" data-product-id="fear-kills">Add to cart</button>
+        </article>
+
+        <article class="product" data-category="tshirts" data-price="999">
+          <div class="product-image gallery"><img class="main-img" src="assets/tees/fear-hurts-1-front.jpg" alt="TUCK Fear Hurts t-shirt" loading="lazy" decoding="async"></div>
+          <div class="thumbs">
+            <button class="thumb active" data-src="assets/tees/fear-hurts-1-front.jpg"><img src="assets/tees/fear-hurts-1-front.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-hurts-2-back.jpg"><img src="assets/tees/fear-hurts-2-back.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-hurts-3-flat.jpg"><img src="assets/tees/fear-hurts-3-flat.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-hurts-4-texture.jpg"><img src="assets/tees/fear-hurts-4-texture.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-hurts-5-folded.jpg"><img src="assets/tees/fear-hurts-5-folded.jpg" alt="" loading="lazy" decoding="async"></button>
+          </div>
+          <div class="product-info">
+            <div><h3>Fear Hurts</h3><p>Oversized Tee / Off-white</p></div>
+            <strong>₹999</strong>
+          </div>
+          <div class="size-picker">
+            <span class="size-label">Size</span>
+            <div class="size-options">
+              <button type="button" class="size-btn" data-size="S">S</button>
+              <button type="button" class="size-btn active" data-size="M">M</button>
+              <button type="button" class="size-btn" data-size="L">L</button>
+            </div>
+          </div>
+          <button class="add" data-name="Fear Hurts Tee" data-product-id="fear-hurts">Add to cart</button>
+        </article>
+
+        <article class="product" data-category="tshirts" data-price="999">
+          <div class="product-image gallery"><img class="main-img" src="assets/tees/fear-not-1-front.jpg" alt="TUCK Fear Not t-shirt" loading="lazy" decoding="async"></div>
+          <div class="thumbs">
+            <button class="thumb active" data-src="assets/tees/fear-not-1-front.jpg"><img src="assets/tees/fear-not-1-front.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-not-2-back.jpg"><img src="assets/tees/fear-not-2-back.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-not-3-detail.jpg"><img src="assets/tees/fear-not-3-detail.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-not-4-flat.jpg"><img src="assets/tees/fear-not-4-flat.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-not-5-tag.jpg"><img src="assets/tees/fear-not-5-tag.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/fear-not-6-folded.jpg"><img src="assets/tees/fear-not-6-folded.jpg" alt="" loading="lazy" decoding="async"></button>
+          </div>
+          <div class="product-info">
+            <div><h3>Fear Not</h3><p>Boxed Logo Tee / Off-white</p></div>
+            <strong>₹999</strong>
+          </div>
+          <div class="size-picker">
+            <span class="size-label">Size</span>
+            <div class="size-options">
+              <button type="button" class="size-btn" data-size="S">S</button>
+              <button type="button" class="size-btn active" data-size="M">M</button>
+              <button type="button" class="size-btn" data-size="L">L</button>
+            </div>
+          </div>
+          <button class="add" data-name="Fear Not Tee" data-product-id="fear-not">Add to cart</button>
+        </article>
+
+        <article class="product" data-category="tshirts" data-price="999">
+          <div class="product-image gallery"><img class="main-img" src="assets/tees/afraid-1-front.jpg" alt="TUCK I Am Afraid t-shirt" loading="lazy" decoding="async"></div>
+          <div class="thumbs">
+            <button class="thumb active" data-src="assets/tees/afraid-1-front.jpg"><img src="assets/tees/afraid-1-front.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/afraid-2-back.jpg"><img src="assets/tees/afraid-2-back.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/afraid-3-detail.jpg"><img src="assets/tees/afraid-3-detail.jpg" alt="" loading="lazy" decoding="async"></button>
+            <button class="thumb" data-src="assets/tees/afraid-4-folded.jpg"><img src="assets/tees/afraid-4-folded.jpg" alt="" loading="lazy" decoding="async"></button>
+          </div>
+          <div class="product-info">
+            <div><h3>I Am Afraid</h3><p>Oversized Tee / White</p></div>
+            <strong>₹999</strong>
+          </div>
+          <div class="size-picker">
+            <span class="size-label">Size</span>
+            <div class="size-options">
+              <button type="button" class="size-btn" data-size="S">S</button>
+              <button type="button" class="size-btn active" data-size="M">M</button>
+              <button type="button" class="size-btn" data-size="L">L</button>
+            </div>
+          </div>
+          <button class="add" data-name="I Am Afraid Tee" data-product-id="i-am-afraid">Add to cart</button>
+        </article>
+
+        <!-- BOOKMARKS -->
+        <article class="product" data-category="bookmarks" data-price="99">
+          <div class="product-image artwork"><img src="assets/bookmark-99.jpg" alt="He'd Leave the 99 For You bookmark" loading="lazy" decoding="async"></div>
+          <div class="product-info">
+            <div><h3>He'd Leave the 99</h3><p>Bookmark / For You</p></div>
+            <strong>₹99</strong>
+          </div>
+          <button class="add" data-name="He'd Leave the 99 Bookmark" data-product-id="bookmark-99">Add to cart</button>
+        </article>
+
+        <!-- CAPS -->
+        <article class="product" data-category="caps" data-price="449">
+          <div class="product-image artwork"><img src="assets/cap-tuck-white.png" alt="TUCK Classic Cap, white" loading="lazy" decoding="async"></div>
+          <div class="product-info">
+            <div><h3>TUCK Classic Cap</h3><p>White / Embroidered logo</p></div>
+            <strong>₹449</strong>
+          </div>
+          <button class="add" data-name="TUCK Classic Cap" data-product-id="cap-tuck-white">Add to cart</button>
+        </article>
+
+        <article class="product" data-category="caps" data-price="449">
+          <div class="product-image"><img src="assets/cap-statement-mouth.jpg" alt="Please Keep the Word of Your Mouth cap" loading="lazy" decoding="async"></div>
+          <div class="product-info">
+            <div><h3>Please Keep the Word</h3><p>Statement Cap / Cream</p></div>
+            <strong>₹449</strong>
+          </div>
+          <button class="add" data-name="Please Keep the Word Cap" data-product-id="cap-statement-mouth">Add to cart</button>
+        </article>
+
+        <!-- CANVAS -->
+        <article class="product coming" data-category="canvas">
+          <div class="product-image artwork"><img src="assets/canvas-100-sheep.jpg" alt="100 Sheep canvas artwork" loading="lazy" decoding="async"></div>
+          <div class="product-info">
+            <div><h3>100 Sheep</h3><p>Canvas / Artwork</p></div>
+            <strong>Price soon</strong>
+          </div>
+          <button class="add" data-name="100 Sheep Canvas" disabled>Coming soon</button>
+        </article>
+      </div>
+    </section>
+
+    <section id="story" class="story">
+      <div>
+        <p class="eyebrow">OUR STORY</p>
+        <h2>WE BELIEVE<br>IN DREAMS.</h2>
+      </div>
+      <p>Every idea starts somewhere. Ours started on a blank canvas — built for those who dare to dream, and achieve it.</p>
+    </section>
+
+    <section class="newsletter">
+      <p class="eyebrow">STAY TUCKED IN</p>
+      <h2>New pieces.<br>No noise.</h2>
+      <form onsubmit="event.preventDefault(); alert('Thanks — we’ll keep you posted.');">
+        <input type="email" placeholder="Your email address" required>
+        <button class="button" type="submit">Join</button>
+      </form>
+    </section>
+  </main>
+
+  <aside class="cart" id="cart" role="dialog" aria-modal="true" aria-label="Cart">
+    <div class="cart-head"><h2>Your cart</h2><button id="closeCart" aria-label="Close cart">×</button></div>
+    <div id="cartItems" class="cart-items"><p class="empty">Your cart is empty.</p></div>
+    <div class="cart-foot">
+      <p><span>Items</span><strong id="cartTotal">0</strong></p>
+      <button class="button full" id="checkout">Checkout</button>
+      <small>Secure payment powered by Razorpay.</small>
+    </div>
+  </aside>
+  <div class="overlay" id="overlay"></div>
+
+  <!-- CHECKOUT — opens as its own full-screen page, not the small cart panel -->
+  <div class="checkout-page hidden" id="checkoutPage" role="dialog" aria-modal="true" aria-label="Checkout">
+    <header class="checkout-head">
+      <a class="brand" href="#"><img src="assets/logo.jpg" alt="TUCK"></a>
+      <div class="checkout-steps" aria-hidden="true">
+        <div class="checkout-step active" data-step="details"><span class="checkout-step-num">1</span><span class="checkout-step-label">Details</span></div>
+        <div class="checkout-step-line"></div>
+        <div class="checkout-step" data-step="confirmation"><span class="checkout-step-num">2</span><span class="checkout-step-label">Confirmed</span></div>
+      </div>
+      <button class="checkout-close" id="checkoutClose" aria-label="Close checkout">×</button>
+    </header>
+
+    <!-- ORDER FORM -->
+    <div id="checkoutFormView" class="checkout-body">
+      <div class="checkout-inner">
+        <p class="eyebrow">CHECKOUT</p>
+        <h1>Almost<br>there.</h1>
+        <div class="checkout-grid">
+          <form id="orderForm" class="checkout-form">
+
+            <div class="field">
+              <label for="ofName">Full name <span class="req">*</span></label>
+              <input type="text" id="ofName" name="name" required autocomplete="name">
+            </div>
+            <div class="field">
+              <label for="ofPhone">Phone number <span class="req">*</span></label>
+              <input type="tel" id="ofPhone" name="phone" required autocomplete="tel" pattern="[0-9]{10}" maxlength="10">
+              <p class="field-hint">10-digit mobile number — we'll use this to confirm your order.</p>
+            </div>
+            <div class="field">
+              <label for="ofEmail">Email (optional)</label>
+              <input type="email" id="ofEmail" name="email" autocomplete="email">
+            </div>
+
+            <h2 class="checkout-section-heading">Delivery address</h2>
+
+            <div class="field">
+              <label for="ofAddress">Address <span class="req">*</span></label>
+              <textarea id="ofAddress" name="address" rows="2" required autocomplete="address-line1"></textarea>
+              <p class="field-hint">House no., building, street</p>
+            </div>
+
+            <button type="button" class="field-add" id="addLandmarkBtn">
+              <span>Add landmark, floor, apartment</span><span class="field-add-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="field hidden" id="landmarkField">
+              <label for="ofLandmark">Landmark, floor, apartment</label>
+              <input type="text" id="ofLandmark" name="landmark" autocomplete="address-line2">
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="ofCity">Town/City <span class="req">*</span></label>
+                <input type="text" id="ofCity" name="city" required autocomplete="address-level2">
+              </div>
+              <div class="field">
+                <label for="ofPincode">Pincode <span class="req">*</span></label>
+                <input type="text" id="ofPincode" name="pincode" required inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="postal-code">
+                <p class="field-hint">6-digit postal code. E.g. 734001</p>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="ofState">State <span class="req">*</span></label>
+              <select id="ofState" name="state" required autocomplete="address-level1">
+                <option value="" disabled selected>Select state</option>
+                <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option>
+                <option>Bihar</option><option>Chhattisgarh</option><option>Goa</option><option>Gujarat</option>
+                <option>Haryana</option><option>Himachal Pradesh</option><option>Jharkhand</option>
+                <option>Karnataka</option><option>Kerala</option><option>Madhya Pradesh</option>
+                <option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option>
+                <option>Nagaland</option><option>Odisha</option><option>Punjab</option><option>Rajasthan</option>
+                <option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option>
+                <option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option>
+                <option>Delhi</option><option>Jammu and Kashmir</option><option>Ladakh</option>
+                <option>Chandigarh</option><option>Puducherry</option>
+              </select>
+            </div>
+          </form>
+
+          <aside class="checkout-summary">
+            <h3 id="orderSummaryHeading">Order summary</h3>
+            <div id="orderSummaryList"></div>
+            <p class="note">Your order total is calculated from the products in your cart. You'll be taken to Razorpay to complete the payment securely.</p>
+            <button class="button full" type="submit" form="orderForm" id="completePurchase" disabled>Pay securely with Razorpay</button>
+            <p class="secure-note">
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M4 6V4.5a4 4 0 1 1 8 0V6h.5A1.5 1.5 0 0 1 14 7.5v6A1.5 1.5 0 0 1 12.5 15h-9A1.5 1.5 0 0 1 2 13.5v-6A1.5 1.5 0 0 1 3.5 6H4zm1.5 0h5V4.5a2.5 2.5 0 0 0-5 0V6z"/></svg>
+              All data is kept private and secure.
+            </p>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIRMATION -->
+    <div id="checkoutConfirmView" class="checkout-body hidden">
+      <div class="checkout-inner checkout-confirm">
+        <div class="check">✓</div>
+        <p class="eyebrow">ORDER RECEIVED</p>
+        <h1>Thanks,<br>we've got it.</h1>
+        <p class="checkout-confirm-tagline">We believe in dreams.</p>
+        <p class="checkout-confirm-copy">Your payment was received successfully. We'll process your order and contact you with delivery updates.</p>
+        <p class="field-hint" id="paymentIdNote"></p>
+        <div class="order-ticket">
+          <div class="order-ticket-top">
+            <span class="order-ticket-label">Order reference</span>
+            <div class="order-ref" id="orderRef"></div>
+          </div>
+          <div class="order-ticket-divider"></div>
+          <div class="order-recap" id="orderRecap"></div>
+        </div>
+        <button class="button full" id="continueShopping">Continue shopping</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <img src="assets/logo.jpg" alt="TUCK">
+    <p>WE BELIEVE IN DREAMS.</p>
+    <p>© 2026 TUCK</p>
+  </footer>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
