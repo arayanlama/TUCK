@@ -1,0 +1,7 @@
+.git
+.git/**
+.wrangler
+.wrangler/**
+.DS_Store
+node_modules
+node_modules/**
