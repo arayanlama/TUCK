@@ -128,7 +128,22 @@ async function inventoryDecrease(env, orderId){
 }
 async function sendStoreEmail(env, to, subject, html){
   if(!env.RESEND_API_KEY || !env.ORDER_FROM_EMAIL || !to) return {skipped:true};
-  const r=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${env.RESEND_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({from:env.ORDER_FROM_EMAIL,to:[to],subject,html})});
+
+  const r = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+  body: JSON.stringify({
+  from: env.ORDER_FROM_EMAIL,
+  to: [to],
+  reply_to: 'support@tuckshop.in',
+  subject,
+  html
+})
+  });
+
   if(!r.ok) console.error('Email send failed', await r.text());
   return {ok:r.ok};
 }
