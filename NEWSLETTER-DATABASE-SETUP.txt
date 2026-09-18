@@ -1,0 +1,30 @@
+TUCK NEWSLETTER DATABASE SETUP (Cloudflare D1)
+
+The website code is already wired to POST /api/newsletter/subscribe.
+Complete these commands from the TUCK project folder:
+
+1. Create the database:
+   npx wrangler d1 create tuck-customers
+
+2. Wrangler will print a database_id. Add this block at the top level of wrangler.jsonc (after the compatibility_date line is fine):
+
+   "d1_databases": [
+     {
+       "binding": "DB",
+       "database_name": "tuck-customers",
+       "database_id": "PASTE_THE_DATABASE_ID_HERE"
+     }
+   ],
+
+3. Create the customers table in the production database:
+   npx wrangler d1 execute tuck-customers --remote --file=./schema.sql
+
+4. Deploy:
+   npx wrangler deploy
+
+5. Test on https://www.tuckshop.in by entering an email in STAY TUCKED IN and pressing JOIN.
+
+6. View subscribers:
+   npx wrangler d1 execute tuck-customers --remote --command="SELECT id, email, subscribed, source, created_at FROM customers ORDER BY created_at DESC;"
+
+Privacy note: the database stores only the submitted email plus subscription metadata. Keep the Privacy Policy accurate as your marketing/email practices evolve.

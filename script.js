@@ -299,3 +299,44 @@ orderForm.addEventListener('submit', async (e) => {
 });
 
 renderCart();
+
+
+// Newsletter signup -> Cloudflare Worker -> D1
+const newsletterForm = document.getElementById('newsletterForm');
+if(newsletterForm){
+  const newsletterEmail = document.getElementById('newsletterEmail');
+  const newsletterJoin = document.getElementById('newsletterJoin');
+  const newsletterStatus = document.getElementById('newsletterStatus');
+
+  newsletterForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    newsletterStatus.className = 'newsletter-status';
+    if(!newsletterEmail.checkValidity()){
+      newsletterEmail.reportValidity();
+      return;
+    }
+    newsletterJoin.disabled = true;
+    newsletterJoin.textContent = 'Joining…';
+    try {
+      const response = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({email: newsletterEmail.value})
+      });
+      const data = await response.json().catch(() => ({}));
+      if(!response.ok) throw new Error(data.error || 'Could not subscribe right now.');
+      newsletterStatus.textContent = data.message || 'Thanks — you’re on the list.';
+      newsletterStatus.classList.add('success');
+      newsletterForm.reset();
+    } catch(error) {
+      console.error(error);
+      newsletterStatus.textContent = location.protocol === 'file:'
+        ? 'Newsletter signup works after the site is deployed through Cloudflare.'
+        : (error.message || 'Could not subscribe right now. Please try again.');
+      newsletterStatus.classList.add('error');
+    } finally {
+      newsletterJoin.disabled = false;
+      newsletterJoin.textContent = 'Join';
+    }
+  });
+}

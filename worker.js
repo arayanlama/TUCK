@@ -166,6 +166,23 @@ async function verifyPayment(request, env){
   return json({ok:true, receipt: order.receipt, paymentId: payment.id, orderId: order.id});
 }
 
+async function subscribeNewsletter(request, env){
+  if(!env.DB) return json({error:'Newsletter database is not configured yet.'}, 503);
+  const body = await request.json().catch(() => ({}));
+  const email = clean(body.email, 254).toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({error:'Please enter a valid email address.'}, 400);
+
+  const existing = await env.DB.prepare('SELECT subscribed FROM customers WHERE email = ?').bind(email).first();
+  if(existing){
+    if(Number(existing.subscribed) === 1) return json({ok:true, alreadySubscribed:true, message:'You’re already on the list.'});
+    await env.DB.prepare("UPDATE customers SET subscribed = 1, updated_at = CURRENT_TIMESTAMP WHERE email = ?").bind(email).run();
+    return json({ok:true, message:'Welcome back — you’re subscribed.'});
+  }
+
+  await env.DB.prepare("INSERT INTO customers (email, subscribed, source) VALUES (?, 1, 'website-newsletter')").bind(email).run();
+  return json({ok:true, message:'Thanks — you’re on the list.'}, 201);
+}
+
 export default {
   async fetch(request, env){
     const url = new URL(request.url);
@@ -174,6 +191,7 @@ export default {
     }
 
     try {
+      if(url.pathname === '/api/newsletter/subscribe' && request.method === 'POST') return await subscribeNewsletter(request, env);
       if(url.pathname === '/api/create-order' && request.method === 'POST') return await createOrder(request, env);
       if(url.pathname === '/api/verify-payment' && request.method === 'POST') return await verifyPayment(request, env);
       return env.ASSETS.fetch(request);
