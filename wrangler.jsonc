@@ -6,6 +6,15 @@
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*"]
-  }
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tuck-customers",
+      "database_id": "a0ba31d4-3956-4af1-a9eb-5627fda837ac"
+    }
+  ]
 }

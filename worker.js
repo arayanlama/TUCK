@@ -183,6 +183,46 @@ async function subscribeNewsletter(request, env){
   return json({ok:true, message:'Thanks — you’re on the list.'}, 201);
 }
 
+
+function isAdmin(request, env){
+  const token = clean(env.ADMIN_TOKEN, 512);
+  if(!token) return false;
+  const auth = request.headers.get('Authorization') || '';
+  if(!auth.startsWith('Bearer ')) return false;
+  return timingSafeEqual(auth.slice(7), token);
+}
+
+async function adminCustomers(request, env){
+  if(!env.DB) return json({error:'Customer database is not configured.'}, 503);
+  if(!isAdmin(request, env)) return json({error:'Unauthorized'}, 401);
+  const url = new URL(request.url);
+  const q = clean(url.searchParams.get('q'), 120).toLowerCase();
+  const status = clean(url.searchParams.get('status'), 20);
+  let sql = 'SELECT id, email, subscribed, source, created_at, updated_at FROM customers';
+  const where = [];
+  const binds = [];
+  if(q){ where.push('LOWER(email) LIKE ?'); binds.push(`%${q}%`); }
+  if(status === 'subscribed'){ where.push('subscribed = 1'); }
+  if(status === 'unsubscribed'){ where.push('subscribed = 0'); }
+  if(where.length) sql += ' WHERE ' + where.join(' AND ');
+  sql += ' ORDER BY id DESC LIMIT 1000';
+  const stmt = env.DB.prepare(sql);
+  const result = binds.length ? await stmt.bind(...binds).all() : await stmt.all();
+  const stats = await env.DB.prepare('SELECT COUNT(*) AS total, SUM(CASE WHEN subscribed = 1 THEN 1 ELSE 0 END) AS subscribed FROM customers').first();
+  return json({ok:true, customers:result.results || [], stats:{total:Number(stats?.total||0), subscribed:Number(stats?.subscribed||0)}});
+}
+
+async function adminSetSubscription(request, env){
+  if(!env.DB) return json({error:'Customer database is not configured.'}, 503);
+  if(!isAdmin(request, env)) return json({error:'Unauthorized'}, 401);
+  const body = await request.json().catch(() => ({}));
+  const id = Number(body.id);
+  const subscribed = body.subscribed ? 1 : 0;
+  if(!Number.isInteger(id) || id < 1) return json({error:'Invalid customer.'}, 400);
+  await env.DB.prepare('UPDATE customers SET subscribed = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').bind(subscribed, id).run();
+  return json({ok:true});
+}
+
 export default {
   async fetch(request, env){
     const url = new URL(request.url);
@@ -192,6 +232,8 @@ export default {
 
     try {
       if(url.pathname === '/api/newsletter/subscribe' && request.method === 'POST') return await subscribeNewsletter(request, env);
+      if(url.pathname === '/api/admin/customers' && request.method === 'GET') return await adminCustomers(request, env);
+      if(url.pathname === '/api/admin/customer-subscription' && request.method === 'POST') return await adminSetSubscription(request, env);
       if(url.pathname === '/api/create-order' && request.method === 'POST') return await createOrder(request, env);
       if(url.pathname === '/api/verify-payment' && request.method === 'POST') return await verifyPayment(request, env);
       return env.ASSETS.fetch(request);

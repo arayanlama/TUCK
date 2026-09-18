@@ -53,3 +53,12 @@ GO-LIVE
 
 IMPORTANT LIMITATION
 This version verifies payments immediately through the Razorpay API, but it does not yet maintain a separate TUCK order database. Razorpay itself will contain the order/payment and the customer/order notes supplied when the order is created. For a larger operation, add Cloudflare D1/KV and a webhook endpoint so orders are persisted independently of the browser.
+
+PRIVATE CUSTOMER DASHBOARD
+--------------------------
+1. Create a strong admin token and store it as a Worker secret:
+   npx wrangler secret put ADMIN_TOKEN
+2. Deploy:
+   npx wrangler deploy
+3. Visit /admin.html and enter that token.
+The token is never embedded in the site files; admin customer API routes require the Bearer token.
