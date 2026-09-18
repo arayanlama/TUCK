@@ -282,6 +282,21 @@ async function adminOrders(request, env){
   return json({ok:true, orders:result.results || [], stats:{total:Number(stats?.total||0), paid:Number(stats?.paid||0), revenue_paise:Number(stats?.revenue_paise||0)}});
 }
 
+
+async function adminSetOrderStatus(request, env){
+  if(!env.DB) return json({error:'Order database is not configured.'}, 503);
+  if(!isAdmin(request, env)) return json({error:'Unauthorized'}, 401);
+  const body = await request.json().catch(() => ({}));
+  const id = Number(body.id);
+  const status = clean(body.status, 32).toLowerCase();
+  const allowed = new Set(['placed','confirmed','processing','shipped','delivered','cancelled','refunded']);
+  if(!Number.isInteger(id) || id < 1) return json({error:'Invalid order.'}, 400);
+  if(!allowed.has(status)) return json({error:'Invalid order status.'}, 400);
+  const result = await env.DB.prepare('UPDATE orders SET order_status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').bind(status, id).run();
+  if(!result.meta?.changes) return json({error:'Order not found.'}, 404);
+  return json({ok:true, id, status});
+}
+
 async function adminSetSubscription(request, env){
   if(!env.DB) return json({error:'Customer database is not configured.'}, 503);
   if(!isAdmin(request, env)) return json({error:'Unauthorized'}, 401);
@@ -306,6 +321,7 @@ export default {
       if(url.pathname === '/api/admin/commerce-customers' && request.method === 'GET') return await adminCommerceCustomers(request, env);
       if(url.pathname === '/api/admin/orders' && request.method === 'GET') return await adminOrders(request, env);
       if(url.pathname === '/api/admin/customer-subscription' && request.method === 'POST') return await adminSetSubscription(request, env);
+      if(url.pathname === '/api/admin/order-status' && request.method === 'POST') return await adminSetOrderStatus(request, env);
       if(url.pathname === '/api/create-order' && request.method === 'POST') return await createOrder(request, env);
       if(url.pathname === '/api/verify-payment' && request.method === 'POST') return await verifyPayment(request, env);
       return env.ASSETS.fetch(request);
