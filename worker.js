@@ -134,6 +134,40 @@ async function createOrder(request, env){
     })
   });
 
+  // Record checkout server-side as soon as the Razorpay order exists. This is
+  // intentionally separate from newsletter subscribers: checkout email is optional.
+  if(env.DB){
+    const customerResult = await env.DB.prepare(`
+      INSERT INTO commerce_customers (name, phone, email, first_order_at, last_order_at)
+      VALUES (?, ?, NULLIF(?, ''), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      ON CONFLICT(phone) DO UPDATE SET
+        name = excluded.name,
+        email = COALESCE(excluded.email, commerce_customers.email),
+        last_order_at = CURRENT_TIMESTAMP
+      RETURNING id
+    `).bind(customer.name, customer.phone, customer.email).first();
+
+    const customerId = Number(customerResult?.id);
+    await env.DB.prepare(`
+      INSERT INTO orders (
+        receipt, razorpay_order_id, customer_id, amount_paise, currency, payment_status, order_status,
+        shipping_name, shipping_phone, shipping_email, address, landmark, city, state, pincode
+      ) VALUES (?, ?, ?, ?, ?, 'pending', 'placed', ?, ?, NULLIF(?, ''), ?, NULLIF(?, ''), ?, ?, ?)
+    `).bind(
+      receipt, order.id, customerId, order.amount, order.currency,
+      customer.name, customer.phone, customer.email, customer.address, customer.landmark,
+      customer.city, customer.state, customer.pincode
+    ).run();
+
+    const orderRow = await env.DB.prepare('SELECT id FROM orders WHERE razorpay_order_id = ?').bind(order.id).first();
+    const orderDbId = Number(orderRow?.id);
+    if(orderDbId){
+      await env.DB.batch(items.map(item => env.DB.prepare(
+        'INSERT INTO order_items (order_id, product_id, product_name, size, unit_price_paise, quantity) VALUES (?, ?, ?, ?, ?, 1)'
+      ).bind(orderDbId, item.id, item.name, item.size, item.price * 100)));
+    }
+  }
+
   return json({
     keyId: env.RAZORPAY_KEY_ID,
     orderId: order.id,
@@ -162,6 +196,13 @@ async function verifyPayment(request, env){
   if(payment.order_id !== order.id) return json({error:'Payment does not belong to this order.'}, 400);
   if(payment.amount !== order.amount || payment.currency !== order.currency) return json({error:'Payment amount mismatch.'}, 400);
   if(payment.status !== 'captured') return json({error:'Payment is not captured yet. Please check the Razorpay payment status before fulfilling this order.'}, 409);
+
+  if(env.DB){
+    await env.DB.prepare(`
+      UPDATE orders SET payment_status = 'paid', order_status = 'confirmed', razorpay_payment_id = ?, paid_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+      WHERE razorpay_order_id = ?
+    `).bind(payment.id, order.id).run();
+  }
 
   return json({ok:true, receipt: order.receipt, paymentId: payment.id, orderId: order.id});
 }
@@ -212,6 +253,35 @@ async function adminCustomers(request, env){
   return json({ok:true, customers:result.results || [], stats:{total:Number(stats?.total||0), subscribed:Number(stats?.subscribed||0)}});
 }
 
+
+async function adminCommerceCustomers(request, env){
+  if(!env.DB) return json({error:'Customer database is not configured.'}, 503);
+  if(!isAdmin(request, env)) return json({error:'Unauthorized'}, 401);
+  const result = await env.DB.prepare(`
+    SELECT c.id, c.name, c.phone, c.email, c.first_order_at, c.last_order_at,
+           COUNT(o.id) AS order_count,
+           COALESCE(SUM(CASE WHEN o.payment_status='paid' THEN o.amount_paise ELSE 0 END),0) AS paid_paise
+    FROM commerce_customers c LEFT JOIN orders o ON o.customer_id=c.id
+    GROUP BY c.id ORDER BY c.last_order_at DESC LIMIT 1000
+  `).all();
+  return json({ok:true, customers:result.results || []});
+}
+
+async function adminOrders(request, env){
+  if(!env.DB) return json({error:'Order database is not configured.'}, 503);
+  if(!isAdmin(request, env)) return json({error:'Unauthorized'}, 401);
+  const result = await env.DB.prepare(`
+    SELECT o.id, o.receipt, o.razorpay_order_id, o.razorpay_payment_id, o.amount_paise, o.currency,
+           o.payment_status, o.order_status, o.shipping_name, o.shipping_phone, o.shipping_email,
+           o.address, o.landmark, o.city, o.state, o.pincode, o.created_at, o.paid_at,
+           GROUP_CONCAT(oi.product_name || CASE WHEN oi.size IS NOT NULL THEN ' (' || oi.size || ')' ELSE '' END, ', ') AS items
+    FROM orders o LEFT JOIN order_items oi ON oi.order_id=o.id
+    GROUP BY o.id ORDER BY o.id DESC LIMIT 1000
+  `).all();
+  const stats = await env.DB.prepare(`SELECT COUNT(*) total, SUM(CASE WHEN payment_status='paid' THEN 1 ELSE 0 END) paid, COALESCE(SUM(CASE WHEN payment_status='paid' THEN amount_paise ELSE 0 END),0) revenue_paise FROM orders`).first();
+  return json({ok:true, orders:result.results || [], stats:{total:Number(stats?.total||0), paid:Number(stats?.paid||0), revenue_paise:Number(stats?.revenue_paise||0)}});
+}
+
 async function adminSetSubscription(request, env){
   if(!env.DB) return json({error:'Customer database is not configured.'}, 503);
   if(!isAdmin(request, env)) return json({error:'Unauthorized'}, 401);
@@ -233,6 +303,8 @@ export default {
     try {
       if(url.pathname === '/api/newsletter/subscribe' && request.method === 'POST') return await subscribeNewsletter(request, env);
       if(url.pathname === '/api/admin/customers' && request.method === 'GET') return await adminCustomers(request, env);
+      if(url.pathname === '/api/admin/commerce-customers' && request.method === 'GET') return await adminCommerceCustomers(request, env);
+      if(url.pathname === '/api/admin/orders' && request.method === 'GET') return await adminOrders(request, env);
       if(url.pathname === '/api/admin/customer-subscription' && request.method === 'POST') return await adminSetSubscription(request, env);
       if(url.pathname === '/api/create-order' && request.method === 'POST') return await createOrder(request, env);
       if(url.pathname === '/api/verify-payment' && request.method === 'POST') return await verifyPayment(request, env);
