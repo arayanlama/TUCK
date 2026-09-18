@@ -105,10 +105,39 @@ function validateItems(items){
   return {amount, items: validated};
 }
 
+
+async function inventoryCheck(env, items){
+  if(!env.DB) return;
+  for(const item of items){
+    const keySize = item.size || '';
+    const row = await env.DB.prepare('SELECT stock, track_inventory FROM inventory WHERE product_id=? AND size=?').bind(item.id,keySize).first();
+    if(row && Number(row.track_inventory)===1 && Number(row.stock)<1) throw new Error(`${item.name}${item.size ? ` (${item.size})` : ''} is out of stock.`);
+  }
+}
+async function inventoryDecrease(env, orderId){
+  if(!env.DB) return;
+  const items=(await env.DB.prepare('SELECT product_id,size,quantity FROM order_items WHERE order_id=?').bind(orderId).all()).results||[];
+  for(const item of items){
+    const size=item.size||'';
+    const row=await env.DB.prepare('SELECT stock,track_inventory FROM inventory WHERE product_id=? AND size=?').bind(item.product_id,size).first();
+    if(row && Number(row.track_inventory)===1){
+      const r=await env.DB.prepare('UPDATE inventory SET stock=stock-?, updated_at=CURRENT_TIMESTAMP WHERE product_id=? AND size=? AND stock>=?').bind(Number(item.quantity)||1,item.product_id,size,Number(item.quantity)||1).run();
+      if(!r.meta?.changes) throw new Error('Inventory changed while payment was processing. Please contact TUCK support.');
+    }
+  }
+}
+async function sendStoreEmail(env, to, subject, html){
+  if(!env.RESEND_API_KEY || !env.ORDER_FROM_EMAIL || !to) return {skipped:true};
+  const r=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${env.RESEND_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({from:env.ORDER_FROM_EMAIL,to:[to],subject,html})});
+  if(!r.ok) console.error('Email send failed', await r.text());
+  return {ok:r.ok};
+}
+
 async function createOrder(request, env){
   const body = await request.json();
   const customer = validateCustomer(body.customer);
   const {amount, items} = validateItems(body.items);
+  await inventoryCheck(env, items);
   const receipt = makeReceipt();
 
   const itemText = items.map(item => `${item.name}${item.size ? ` (${item.size})` : ''} x1`).join(', ').slice(0, 240);
@@ -198,10 +227,15 @@ async function verifyPayment(request, env){
   if(payment.status !== 'captured') return json({error:'Payment is not captured yet. Please check the Razorpay payment status before fulfilling this order.'}, 409);
 
   if(env.DB){
-    await env.DB.prepare(`
-      UPDATE orders SET payment_status = 'paid', order_status = 'confirmed', razorpay_payment_id = ?, paid_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
-      WHERE razorpay_order_id = ?
-    `).bind(payment.id, order.id).run();
+    const dbOrder = await env.DB.prepare('SELECT id, shipping_email, shipping_name, receipt, payment_status FROM orders WHERE razorpay_order_id=?').bind(order.id).first();
+    if(dbOrder && dbOrder.payment_status !== 'paid'){
+      await inventoryDecrease(env, Number(dbOrder.id));
+      await env.DB.prepare(`
+        UPDATE orders SET payment_status = 'paid', order_status = 'confirmed', razorpay_payment_id = ?, paid_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+        WHERE razorpay_order_id = ?
+      `).bind(payment.id, order.id).run();
+      await sendStoreEmail(env, dbOrder.shipping_email, `TUCK order confirmed — ${dbOrder.receipt}`, `<p>Hi ${dbOrder.shipping_name},</p><p>Your TUCK order <strong>${dbOrder.receipt}</strong> is confirmed and paid.</p><p>We’ll email you again when it ships.</p>`);
+    }
   }
 
   return json({ok:true, receipt: order.receipt, paymentId: payment.id, orderId: order.id});
@@ -273,28 +307,13 @@ async function adminOrders(request, env){
   const result = await env.DB.prepare(`
     SELECT o.id, o.receipt, o.razorpay_order_id, o.razorpay_payment_id, o.amount_paise, o.currency,
            o.payment_status, o.order_status, o.shipping_name, o.shipping_phone, o.shipping_email,
-           o.address, o.landmark, o.city, o.state, o.pincode, o.created_at, o.paid_at,
+           o.address, o.landmark, o.city, o.state, o.pincode, o.created_at, o.paid_at, o.courier, o.tracking_number, o.tracking_url, o.shipped_at, o.delivered_at,
            GROUP_CONCAT(oi.product_name || CASE WHEN oi.size IS NOT NULL THEN ' (' || oi.size || ')' ELSE '' END, ', ') AS items
     FROM orders o LEFT JOIN order_items oi ON oi.order_id=o.id
     GROUP BY o.id ORDER BY o.id DESC LIMIT 1000
   `).all();
   const stats = await env.DB.prepare(`SELECT COUNT(*) total, SUM(CASE WHEN payment_status='paid' THEN 1 ELSE 0 END) paid, COALESCE(SUM(CASE WHEN payment_status='paid' THEN amount_paise ELSE 0 END),0) revenue_paise FROM orders`).first();
   return json({ok:true, orders:result.results || [], stats:{total:Number(stats?.total||0), paid:Number(stats?.paid||0), revenue_paise:Number(stats?.revenue_paise||0)}});
-}
-
-
-async function adminSetOrderStatus(request, env){
-  if(!env.DB) return json({error:'Order database is not configured.'}, 503);
-  if(!isAdmin(request, env)) return json({error:'Unauthorized'}, 401);
-  const body = await request.json().catch(() => ({}));
-  const id = Number(body.id);
-  const status = clean(body.status, 32).toLowerCase();
-  const allowed = new Set(['placed','confirmed','processing','shipped','delivered','cancelled','refunded']);
-  if(!Number.isInteger(id) || id < 1) return json({error:'Invalid order.'}, 400);
-  if(!allowed.has(status)) return json({error:'Invalid order status.'}, 400);
-  const result = await env.DB.prepare('UPDATE orders SET order_status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').bind(status, id).run();
-  if(!result.meta?.changes) return json({error:'Order not found.'}, 404);
-  return json({ok:true, id, status});
 }
 
 async function adminSetSubscription(request, env){
@@ -306,6 +325,36 @@ async function adminSetSubscription(request, env){
   if(!Number.isInteger(id) || id < 1) return json({error:'Invalid customer.'}, 400);
   await env.DB.prepare('UPDATE customers SET subscribed = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').bind(subscribed, id).run();
   return json({ok:true});
+}
+
+
+async function adminInventory(request, env){
+  if(!env.DB) return json({error:'Database is not configured.'},503); if(!isAdmin(request,env)) return json({error:'Unauthorized'},401);
+  if(request.method==='GET'){
+    const rows=(await env.DB.prepare('SELECT product_id,size,stock,low_stock_threshold,track_inventory,updated_at FROM inventory ORDER BY product_id,size').all()).results||[];
+    const map=new Map(rows.map(r=>[`${r.product_id}|${r.size}`,r]));
+    const out=[]; for(const [id,p] of Object.entries(CATALOG)){ const sizes=p.requiresSize?['S','M','L']:['']; for(const size of sizes){out.push(map.get(`${id}|${size}`)||{product_id:id,size,stock:0,low_stock_threshold:3,track_inventory:0,product_name:p.name});} }
+    out.forEach(r=>r.product_name=CATALOG[r.product_id]?.name||r.product_id); return json({ok:true,inventory:out});
+  }
+  const b=await request.json(); const id=clean(b.product_id,80), size=clean(b.size,8), stock=Math.max(0,Math.floor(Number(b.stock)||0)), threshold=Math.max(0,Math.floor(Number(b.low_stock_threshold)||0)), track=b.track_inventory?1:0;
+  if(!CATALOG[id]) return json({error:'Invalid product.'},400);
+  await env.DB.prepare(`INSERT INTO inventory(product_id,size,stock,low_stock_threshold,track_inventory) VALUES(?,?,?,?,?) ON CONFLICT(product_id,size) DO UPDATE SET stock=excluded.stock,low_stock_threshold=excluded.low_stock_threshold,track_inventory=excluded.track_inventory,updated_at=CURRENT_TIMESTAMP`).bind(id,size,stock,threshold,track).run(); return json({ok:true});
+}
+async function adminOrderUpdate(request, env){
+  if(!env.DB) return json({error:'Database is not configured.'},503); if(!isAdmin(request,env)) return json({error:'Unauthorized'},401);
+  const b=await request.json(); const id=Number(b.id); if(!Number.isInteger(id)||id<1) return json({error:'Invalid order.'},400);
+  const allowed=new Set(['placed','confirmed','processing','shipped','delivered','cancelled','refunded']); const status=clean(b.order_status,30); if(!allowed.has(status)) return json({error:'Invalid status.'},400);
+  const courier=clean(b.courier,80), tracking=clean(b.tracking_number,120), trackingUrl=clean(b.tracking_url,500);
+  const before=await env.DB.prepare('SELECT * FROM orders WHERE id=?').bind(id).first(); if(!before) return json({error:'Order not found.'},404);
+  await env.DB.prepare(`UPDATE orders SET order_status=?,courier=NULLIF(?,''),tracking_number=NULLIF(?,''),tracking_url=NULLIF(?,''),shipped_at=CASE WHEN ?='shipped' AND shipped_at IS NULL THEN CURRENT_TIMESTAMP ELSE shipped_at END,delivered_at=CASE WHEN ?='delivered' AND delivered_at IS NULL THEN CURRENT_TIMESTAMP ELSE delivered_at END,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(status,courier,tracking,trackingUrl,status,status,id).run();
+  if(status==='shipped' && before.order_status!=='shipped') await sendStoreEmail(env,before.shipping_email,`TUCK order shipped — ${before.receipt}`,`<p>Hi ${before.shipping_name},</p><p>Your TUCK order <strong>${before.receipt}</strong> has shipped${courier?` via ${courier}`:''}.</p>${tracking?`<p>Tracking: ${tracking}</p>`:''}${trackingUrl?`<p><a href="${trackingUrl}">Track your order</a></p>`:''}`);
+  if(status==='delivered' && before.order_status!=='delivered') await sendStoreEmail(env,before.shipping_email,`TUCK order delivered — ${before.receipt}`,`<p>Hi ${before.shipping_name},</p><p>Your TUCK order <strong>${before.receipt}</strong> has been marked delivered. Thank you.</p>`);
+  return json({ok:true});
+}
+async function adminOrderNotes(request, env){
+  if(!env.DB) return json({error:'Database is not configured.'},503); if(!isAdmin(request,env)) return json({error:'Unauthorized'},401);
+  const url=new URL(request.url); if(request.method==='GET'){const id=Number(url.searchParams.get('order_id')); const r=await env.DB.prepare('SELECT id,note,created_at FROM order_notes WHERE order_id=? ORDER BY id DESC').bind(id).all(); return json({ok:true,notes:r.results||[]});}
+  const b=await request.json(); const id=Number(b.order_id), note=clean(b.note,1000); if(!id||!note)return json({error:'Order and note required.'},400); await env.DB.prepare('INSERT INTO order_notes(order_id,note) VALUES(?,?)').bind(id,note).run(); return json({ok:true});
 }
 
 export default {
@@ -321,7 +370,9 @@ export default {
       if(url.pathname === '/api/admin/commerce-customers' && request.method === 'GET') return await adminCommerceCustomers(request, env);
       if(url.pathname === '/api/admin/orders' && request.method === 'GET') return await adminOrders(request, env);
       if(url.pathname === '/api/admin/customer-subscription' && request.method === 'POST') return await adminSetSubscription(request, env);
-      if(url.pathname === '/api/admin/order-status' && request.method === 'POST') return await adminSetOrderStatus(request, env);
+      if(url.pathname === '/api/admin/inventory' && (request.method === 'GET' || request.method === 'POST')) return await adminInventory(request, env);
+      if(url.pathname === '/api/admin/order-update' && request.method === 'POST') return await adminOrderUpdate(request, env);
+      if(url.pathname === '/api/admin/order-notes' && (request.method === 'GET' || request.method === 'POST')) return await adminOrderNotes(request, env);
       if(url.pathname === '/api/create-order' && request.method === 'POST') return await createOrder(request, env);
       if(url.pathname === '/api/verify-payment' && request.method === 'POST') return await verifyPayment(request, env);
       return env.ASSETS.fetch(request);
