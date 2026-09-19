@@ -4,6 +4,10 @@ const overlay = document.getElementById('overlay');
 const cartCount = document.getElementById('cartCount');
 const cartItems = document.getElementById('cartItems');
 const cartTotal = document.getElementById('cartTotal');
+const cartButton = document.getElementById('cartButton');
+const checkoutButton = document.getElementById('checkout');
+let lastFocusedElement = null;
+let paymentInProgress = false;
 
 const checkoutPage = document.getElementById('checkoutPage');
 const checkoutFormView = document.getElementById('checkoutFormView');
@@ -25,7 +29,8 @@ function formatINR(amount){
 }
 
 function cartLineHtml(item, withRemove, index){
-  const removeHtml = withRemove ? `<button class="remove" onclick="removeItem(${index})">Remove</button>` : '';
+  const quantity=Number(item.quantity)||1;
+  const removeHtml = withRemove ? `<div class="cart-actions"><div class="quantity" aria-label="Quantity for ${escapeHtml(item.name)}"><button type="button" data-quantity-index="${index}" data-quantity-change="-1" aria-label="Decrease quantity">−</button><span>${quantity}</span><button type="button" data-quantity-index="${index}" data-quantity-change="1" aria-label="Increase quantity">+</button></div><button class="remove" type="button" data-remove-index="${index}" aria-label="Remove ${escapeHtml(item.name)} from cart">Remove</button></div>` : `<span class="cart-quantity">×${quantity}</span>`;
   const thumbHtml = item.img
     ? `<img class="cart-thumb" src="${escapeHtml(item.img)}" alt="" loading="lazy">`
     : `<span class="cart-thumb cart-thumb-empty" aria-hidden="true"></span>`;
@@ -34,28 +39,31 @@ function cartLineHtml(item, withRemove, index){
       <div class="cart-row">
         ${thumbHtml}
         <span class="cart-row-label">${escapeHtml(item.name)}${meta}</span>
-        <strong>${formatINR(item.price)}</strong>
+        <strong>${formatINR(item.price * quantity)}</strong>
         ${removeHtml}
       </div>`;
 }
 
 function getCartTotal(){
-  return cart.reduce((sum, item) => sum + Number(item.price || 0), 0);
+  return cart.reduce((sum, item) => sum + Number(item.price || 0)*(Number(item.quantity)||1), 0);
 }
 
+function getCartUnitCount(){ return cart.reduce((sum,item)=>sum+(Number(item.quantity)||1),0); }
+
 function renderCart(){
-  cartCount.textContent = cart.length;
+  cartCount.textContent = getCartUnitCount();
   if(!cart.length){
     cartItems.innerHTML = '<p class="empty">Your cart is empty.</p>';
   } else {
     cartItems.innerHTML = cart.map((item,i) => cartLineHtml(item, true, i)).join('');
   }
   cartTotal.textContent = formatINR(getCartTotal());
+  checkoutButton.disabled = cart.length === 0;
 }
 function removeItem(i){ cart.splice(i,1); renderCart(); }
 
-function openCart(){ cartEl.classList.add('open'); overlay.classList.add('show'); }
-function closeCart(){ cartEl.classList.remove('open'); overlay.classList.remove('show'); }
+function openCart(){ lastFocusedElement=document.activeElement; cartEl.inert=false; cartEl.classList.add('open'); overlay.classList.add('show'); cartEl.setAttribute('aria-hidden','false'); cartButton.setAttribute('aria-expanded','true'); document.getElementById('closeCart').focus(); }
+function closeCart(){ cartEl.classList.remove('open'); overlay.classList.remove('show'); cartEl.setAttribute('aria-hidden','true'); cartEl.inert=true; cartButton.setAttribute('aria-expanded','false'); if(lastFocusedElement?.focus)lastFocusedElement.focus(); }
 
 const checkoutSteps = document.querySelectorAll('.checkout-step');
 function setCheckoutStep(step){
@@ -73,17 +81,41 @@ function openCheckout(){
   setCheckoutStep('details');
   document.body.style.overflow = 'hidden';
   closeCart();
+  checkoutPage.querySelector('input,button,select,textarea')?.focus();
 }
 function closeCheckout(){
+  if(paymentInProgress){ alert('Your payment is still being processed. Please wait for Razorpay to finish.'); return; }
   checkoutPage.classList.add('hidden');
   document.body.style.overflow = '';
 }
 
-document.getElementById('cartButton').onclick = openCart;
+function setPaymentInProgress(active){
+  paymentInProgress=active;
+  document.getElementById('checkoutClose').disabled=active;
+}
+
+cartButton.onclick = openCart;
 document.getElementById('closeCart').onclick = closeCart;
 overlay.onclick = closeCart;
 document.getElementById('checkoutClose').onclick = closeCheckout;
 document.getElementById('continueShopping').onclick = closeCheckout;
+cartItems.addEventListener('click',event=>{
+  const button=event.target.closest('[data-remove-index]');
+  if(button){ removeItem(Number(button.dataset.removeIndex)); return; }
+  const quantityButton=event.target.closest('[data-quantity-index]');
+  if(!quantityButton)return;
+  const index=Number(quantityButton.dataset.quantityIndex),change=Number(quantityButton.dataset.quantityChange),item=cart[index];
+  if(!item)return;
+  if(change>0&&getCartUnitCount()>=20){ alert('Your cart can contain up to 20 units per order.'); return; }
+  item.quantity=(Number(item.quantity)||1)+change;
+  if(item.quantity<1) cart.splice(index,1);
+  renderCart();
+});
+document.addEventListener('keydown',event=>{
+  if(event.key!=='Escape') return;
+  if(!checkoutPage.classList.contains('hidden')) closeCheckout();
+  else if(cartEl.classList.contains('open')) closeCart();
+});
 
 addLandmarkBtn.addEventListener('click', () => {
   landmarkField.classList.remove('hidden');
@@ -119,12 +151,17 @@ document.querySelectorAll('.add').forEach(btn=>{
       return;
     }
 
+    if(getCartUnitCount()>=20){ alert('Your cart can contain up to 20 units per order.'); return; }
+    if(article.querySelector('.size-options')&&!activeSize){ alert('Please choose a size.'); return; }
+    const existing=cart.find(item=>item.productId===productId&&(item.size||null)===(activeSize?.dataset.size||null));
+    if(existing){ existing.quantity=(Number(existing.quantity)||1)+1; renderCart(); openCart(); return; }
     const item = {
       productId,
       name: btn.dataset.name,
       price,
       size: activeSize ? activeSize.dataset.size : null,
-      img: productImg ? productImg.getAttribute('src') : ''
+      img: productImg ? productImg.getAttribute('src') : '',
+      quantity: 1
     };
 
     cart.push(item);
@@ -166,7 +203,8 @@ document.getElementById('checkout').onclick = () => {
   orderSummaryList.innerHTML = cart.map(item => cartLineHtml(item, false)).join('') +
     `<div class="cart-row"><span class="cart-row-label"><strong>Total</strong></span><strong>${formatINR(getCartTotal())}</strong></div>`;
   if(orderSummaryHeading){
-    orderSummaryHeading.textContent = `Order summary (${cart.length} item${cart.length!==1?'s':''})`;
+    const units=getCartUnitCount();
+    orderSummaryHeading.textContent = `Order summary (${units} unit${units!==1?'s':''})`;
   }
   openCheckout();
   updateCompletePurchaseState();
@@ -190,7 +228,7 @@ async function createRazorpayOrder(customer){
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
       customer,
-      items: cart.map(item => ({ productId: item.productId, size: item.size }))
+      items: cart.map(item => ({ productId: item.productId, size: item.size, quantity: item.quantity }))
     })
   });
   const data = await response.json().catch(() => ({}));
@@ -221,6 +259,8 @@ function showConfirmation(receipt, paymentId){
   resetCheckoutForm();
   checkoutFormView.classList.add('hidden');
   checkoutConfirmView.classList.remove('hidden');
+  checkoutPage.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
   setCheckoutStep('confirmation');
   checkoutPage.scrollTop = 0;
 }
@@ -240,6 +280,7 @@ orderForm.addEventListener('submit', async (e) => {
     return;
   }
 
+  setPaymentInProgress(true);
   completePurchaseBtn.disabled = true;
   completePurchaseBtn.textContent = 'Preparing payment…';
 
@@ -266,9 +307,11 @@ orderForm.addEventListener('submit', async (e) => {
         completePurchaseBtn.textContent = 'Verifying payment…';
         try {
           const verified = await verifyPayment(paymentResponse, order.receipt);
+          setPaymentInProgress(false);
           showConfirmation(verified.receipt || order.receipt, paymentResponse.razorpay_payment_id);
         } catch(error) {
           console.error(error);
+          setPaymentInProgress(false);
           completePurchaseBtn.disabled = false;
           completePurchaseBtn.textContent = 'Pay securely with Razorpay';
           alert(error.message || 'We could not verify the payment. Please do not retry repeatedly; check your Razorpay Dashboard or contact TUCK.');
@@ -276,6 +319,7 @@ orderForm.addEventListener('submit', async (e) => {
       },
       modal: {
         ondismiss: function(){
+          setPaymentInProgress(false);
           completePurchaseBtn.disabled = false;
           completePurchaseBtn.textContent = 'Pay securely with Razorpay';
         }
@@ -285,6 +329,7 @@ orderForm.addEventListener('submit', async (e) => {
     const rzp = new Razorpay(options);
     rzp.on('payment.failed', function(response){
       console.error('Razorpay payment failed', response.error);
+      setPaymentInProgress(false);
       completePurchaseBtn.disabled = false;
       completePurchaseBtn.textContent = 'Pay securely with Razorpay';
       alert(response.error?.description || 'Payment failed. Please try again.');
@@ -292,12 +337,14 @@ orderForm.addEventListener('submit', async (e) => {
     rzp.open();
   } catch(error) {
     console.error(error);
+    setPaymentInProgress(false);
     completePurchaseBtn.disabled = false;
     completePurchaseBtn.textContent = 'Pay securely with Razorpay';
     alert(error.message || 'Unable to start payment. Please try again.');
   }
 });
 
+cartEl.inert=true;
 renderCart();
 
 

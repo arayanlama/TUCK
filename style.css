@@ -107,6 +107,7 @@ footer{border-top:1px solid var(--line);padding:35px 5vw;display:flex;align-item
 .add:disabled{opacity:.45;cursor:not-allowed;background:#f4f4f4;border-color:var(--line);color:var(--muted)}
 .add:disabled:hover{background:#f4f4f4;color:var(--muted);border-color:var(--line)}
 .cart-row>strong{font-size:12px;white-space:nowrap}
+.cart-actions{display:flex;align-items:center;gap:8px}.quantity{display:flex;align-items:center;border:1px solid var(--line);border-radius:99px;overflow:hidden}.quantity button{width:30px;height:28px;border:0;background:#fff;cursor:pointer;font-size:16px}.quantity span{min-width:22px;text-align:center;font-size:12px}.cart-quantity{font-size:12px;color:var(--muted);white-space:nowrap}
 #paymentIdNote{margin:0 0 20px;text-align:center}
 
 /* Policy pages */
@@ -120,3 +121,6 @@ footer{border-top:1px solid var(--line);padding:35px 5vw;display:flex;align-item
 .newsletter-status.success{color:var(--green)}
 .newsletter-status.error{color:#a33}
 .newsletter .button:disabled{opacity:.6;cursor:wait}
+.button:disabled{opacity:.55;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--green);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}

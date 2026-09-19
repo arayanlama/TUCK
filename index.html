@@ -13,7 +13,7 @@
     <nav>
       <a href="#shop">Shop</a>
       <a href="#story">Our story</a>
-      <button class="cart-button" id="cartButton">Cart <span id="cartCount">0</span></button>
+      <button class="cart-button" id="cartButton" type="button" aria-controls="cart" aria-expanded="false">Cart <span id="cartCount">0</span></button>
     </nav>
   </header>
 
@@ -212,7 +212,7 @@
     </section>
   </main>
 
-  <aside class="cart" id="cart" role="dialog" aria-modal="true" aria-label="Cart">
+  <aside class="cart" id="cart" role="dialog" aria-modal="true" aria-label="Cart" aria-hidden="true">
     <div class="cart-head"><h2>Your cart</h2><button id="closeCart" aria-label="Close cart">×</button></div>
     <div id="cartItems" class="cart-items"><p class="empty">Your cart is empty.</p></div>
     <div class="cart-foot">
@@ -245,23 +245,23 @@
 
             <div class="field">
               <label for="ofName">Full name <span class="req">*</span></label>
-              <input type="text" id="ofName" name="name" required autocomplete="name">
+              <input type="text" id="ofName" name="name" required minlength="2" maxlength="100" autocomplete="name">
             </div>
             <div class="field">
               <label for="ofPhone">Phone number <span class="req">*</span></label>
-              <input type="tel" id="ofPhone" name="phone" required autocomplete="tel" pattern="[0-9]{10}" maxlength="10">
+              <input type="tel" id="ofPhone" name="phone" required autocomplete="tel" inputmode="numeric" pattern="[0-9]{10}" minlength="10" maxlength="10">
               <p class="field-hint">10-digit mobile number — we'll use this to confirm your order.</p>
             </div>
             <div class="field">
               <label for="ofEmail">Email (optional)</label>
-              <input type="email" id="ofEmail" name="email" autocomplete="email">
+              <input type="email" id="ofEmail" name="email" maxlength="120" autocomplete="email">
             </div>
 
             <h2 class="checkout-section-heading">Delivery address</h2>
 
             <div class="field">
               <label for="ofAddress">Address <span class="req">*</span></label>
-              <textarea id="ofAddress" name="address" rows="2" required autocomplete="address-line1"></textarea>
+              <textarea id="ofAddress" name="address" rows="2" required minlength="5" maxlength="256" autocomplete="address-line1"></textarea>
               <p class="field-hint">House no., building, street</p>
             </div>
 
@@ -270,13 +270,13 @@
             </button>
             <div class="field hidden" id="landmarkField">
               <label for="ofLandmark">Landmark, floor, apartment</label>
-              <input type="text" id="ofLandmark" name="landmark" autocomplete="address-line2">
+              <input type="text" id="ofLandmark" name="landmark" maxlength="160" autocomplete="address-line2">
             </div>
 
             <div class="field-row">
               <div class="field">
                 <label for="ofCity">Town/City <span class="req">*</span></label>
-                <input type="text" id="ofCity" name="city" required autocomplete="address-level2">
+                <input type="text" id="ofCity" name="city" required maxlength="80" autocomplete="address-level2">
               </div>
               <div class="field">
                 <label for="ofPincode">Pincode <span class="req">*</span></label>
@@ -310,7 +310,7 @@
             <button class="button full" type="submit" form="orderForm" id="completePurchase" disabled>Pay securely with Razorpay</button>
             <p class="secure-note">
               <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M4 6V4.5a4 4 0 1 1 8 0V6h.5A1.5 1.5 0 0 1 14 7.5v6A1.5 1.5 0 0 1 12.5 15h-9A1.5 1.5 0 0 1 2 13.5v-6A1.5 1.5 0 0 1 3.5 6H4zm1.5 0h5V4.5a2.5 2.5 0 0 0-5 0V6z"/></svg>
-              All data is kept private and secure.
+              Payment is handled securely by Razorpay.
             </p>
           </aside>
         </div>
@@ -349,7 +349,7 @@
       <a href="privacy.html">Privacy</a>
       <a href="terms.html">Terms</a>
       <a href="cancellation.html">Cancellation</a>
-      <a href="mailto:tuckshop.in@gmail.com">Contact</a>
+      <a href="mailto:support@tuckshop.in">Contact</a>
     </nav>
   </footer>
 

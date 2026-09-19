@@ -1,0 +1,44 @@
+TUCK PRODUCTION QA REPORT
+=========================
+
+Completed: 19 September 2026
+
+Checkout and validation
+- Server remains authoritative for every product and price.
+- Exact 10-digit phone and 6-digit PIN validation; overlong values are rejected rather than truncated.
+- Server validates supported Indian state names, address length, email length, product size, cart size, and JSON request size/type.
+- Checkout refuses to create a Razorpay order when D1 or payment credentials are unavailable.
+- Empty-cart checkout is disabled and the browser enforces the 20-item server limit.
+- Identical product/size selections are consolidated into one line with an explicit quantity.
+- Quantity is validated server-side, priced per unit, stored in D1, shown in Admin, and deducted from inventory by unit count.
+- Checkout cannot be dismissed while a Razorpay order is being created or its payment is being verified.
+
+Payments and orders
+- Browser verification and signed Razorpay webhooks reconcile through one idempotent payment path.
+- Payment/order/currency/amount/capture checks remain server-side.
+- Captured payment, order.paid, full refund, and partial refund states are recorded.
+- Net revenue now accounts for partial and full refunds.
+- Tracked inventory is reduced only when a captured payment is first claimed.
+
+Admin and customer data
+- Unpaid orders cannot be marked confirmed, processing, shipped, or delivered.
+- Shipped/delivered orders cannot be incorrectly moved backwards; refunds must originate in Razorpay.
+- Inventory rejects invalid product-size combinations and malformed stock values.
+- Tracking links must use HTTPS.
+- Order notes require a real order.
+- CSV formula injection is neutralized on exports.
+- Customer-controlled content is escaped in HTML emails and Admin views.
+- Admin page is no-store/noindex and should also be protected by Cloudflare Access.
+
+Frontend and accessibility
+- Cart dialog exposes correct open/closed state, restores focus, and is removed from keyboard navigation while closed.
+- Escape closes the cart or checkout.
+- Remove-from-cart no longer relies on inline JavaScript.
+- Visible keyboard focus and reduced-motion support were added.
+- Duplicate HTML IDs, missing local file references, JavaScript syntax, migrations, ZIP integrity, and Cloudflare deployment bundling were checked.
+- Asset audit: all 26 image files are referenced; there are no missing, orphaned, or byte-for-byte duplicate images.
+
+Deployment note
+- production-orders-migration.sql is a one-time migration for the current remote database.
+- A new empty database should use schema.sql only.
+- Live Razorpay, Resend, DNS, Cloudflare Access, and end-to-end payment tests still require the account setup described in PRODUCTION-ORDER-SETUP.txt.

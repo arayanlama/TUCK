@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS orders (
   amount_paise INTEGER NOT NULL,
   currency TEXT NOT NULL DEFAULT 'INR',
   payment_status TEXT NOT NULL DEFAULT 'pending',
+  amount_refunded_paise INTEGER NOT NULL DEFAULT 0,
   order_status TEXT NOT NULL DEFAULT 'placed',
   shipping_name TEXT NOT NULL,
   shipping_phone TEXT NOT NULL,
@@ -40,6 +41,11 @@ CREATE TABLE IF NOT EXISTS orders (
   pincode TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   paid_at TEXT,
+  tracking_number TEXT,
+  tracking_url TEXT,
+  courier TEXT,
+  shipped_at TEXT,
+  delivered_at TEXT,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (customer_id) REFERENCES commerce_customers(id)
 );
@@ -82,3 +88,19 @@ CREATE TABLE IF NOT EXISTS order_notes (
 
 CREATE INDEX IF NOT EXISTS idx_order_notes_order_id ON order_notes(order_id);
 
+CREATE TABLE IF NOT EXISTS order_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id INTEGER NOT NULL,
+  event_type TEXT NOT NULL,
+  details TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY(order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_order_events_order_id ON order_events(order_id);
+
+CREATE TABLE IF NOT EXISTS webhook_events (
+  event_id TEXT PRIMARY KEY,
+  event_type TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

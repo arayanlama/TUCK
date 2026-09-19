@@ -1,64 +1,24 @@
-# TUCK Store — Cloudflare + Razorpay
+# TUCK Store — Cloudflare, D1, Razorpay and Resend
 
-This version keeps the TUCK storefront static while adding a secure Cloudflare Worker API for Razorpay payments.
+This package contains the TUCK storefront, Worker API, Razorpay checkout and webhook reconciliation, D1 order/customer/inventory storage, customer email notifications, and the TUCK Admin dashboard.
 
-PRODUCT PRICES
-- T-shirts: ₹999 — sizes S, M, L
-- Bookmark: ₹99
-- Caps: ₹449
-- 100 Sheep Canvas: displayed as coming soon because no price was supplied
+ORDER FLOW
 
-RAZORPAY FLOW
-1. The browser sends the selected product IDs/sizes and customer details to /api/create-order.
-2. The Cloudflare Worker validates the catalog and calculates the amount server-side.
-3. The Worker creates a Razorpay Order and returns the public Key ID + Order ID.
-4. Razorpay Checkout opens in the browser.
-5. After payment, the browser sends Razorpay's payment response to /api/verify-payment.
-6. The Worker retrieves the Razorpay order/payment, verifies the HMAC signature, checks the amount/order match, and requires the payment to be captured before showing the paid confirmation.
+1. The browser sends product IDs, sizes, and delivery details to /api/create-order.
+2. The Worker calculates prices from its own catalog, checks inventory, creates the Razorpay order, and records a pending D1 order.
+3. Razorpay Checkout handles payment details. TUCK never stores full card details.
+4. /api/verify-payment verifies the browser result for immediate confirmation.
+5. /api/razorpay-webhook independently reconciles captured payments and refunds, even if the customer closes the browser.
+6. A successful captured payment updates D1, reduces tracked inventory once, records order history, and sends the confirmation email.
+7. TUCK Admin supports fulfillment status, courier/tracking, private notes, order history, customers, inventory, and newsletter consent.
 
 SECURITY
-- Never put RAZORPAY_KEY_SECRET in index.html, script.js, GitHub, or wrangler.jsonc.
-- Store RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET as Cloudflare Worker secrets.
-- The Worker does not trust prices sent by the browser; it has its own catalog.
-- The client-side Razorpay Key ID is safe to expose, while the Key Secret remains server-side.
 
-CLOUDFLARE SETUP
-This project uses Workers Static Assets with the repository root as the asset directory and /api/* routed through the Worker.
+- Never commit RAZORPAY_KEY_SECRET, RAZORPAY_WEBHOOK_SECRET, RESEND_API_KEY, or ADMIN_TOKEN.
+- All totals are calculated server-side from CATALOG in worker.js.
+- Webhooks are verified against the unmodified request body.
+- Customer-facing email is always sent as TUCK Orders <orders@tuckshop.in>, with replies to support@tuckshop.in.
+- Put /admin.html and /api/admin/* behind Cloudflare Access in production. ADMIN_TOKEN remains a second layer.
+- Restrict access to customer data, avoid copying it into logs, and delete it when it is no longer required for fulfillment, support, fraud prevention, tax, accounting, or legal obligations.
 
-Add the secrets from the project root:
-
-  npx wrangler secret put RAZORPAY_KEY_ID
-  npx wrangler secret put RAZORPAY_KEY_SECRET
-
-For local testing, create .dev.vars (do not commit it):
-
-  RAZORPAY_KEY_ID="rzp_test_..."
-  RAZORPAY_KEY_SECRET="..."
-
-Then test locally:
-
-  npx wrangler dev
-
-Deploy manually with:
-
-  npx wrangler deploy
-
-If using Cloudflare Git integration, point the Worker project at this repository and make sure Wrangler is used for the deployment. The required secrets still need to be configured in the Cloudflare Worker environment.
-
-GO-LIVE
-- Use Razorpay Test Mode first.
-- Test successful and failed payments.
-- Generate Live Mode API keys only when ready to accept real payments.
-- Configure Razorpay automatic capture / payment webhooks before fulfillment at scale.
-
-IMPORTANT LIMITATION
-This version verifies payments immediately through the Razorpay API, but it does not yet maintain a separate TUCK order database. Razorpay itself will contain the order/payment and the customer/order notes supplied when the order is created. For a larger operation, add Cloudflare D1/KV and a webhook endpoint so orders are persisted independently of the browser.
-
-PRIVATE CUSTOMER DASHBOARD
---------------------------
-1. Create a strong admin token and store it as a Worker secret:
-   npx wrangler secret put ADMIN_TOKEN
-2. Deploy:
-   npx wrangler deploy
-3. Visit /admin.html and enter that token.
-The token is never embedded in the site files; admin customer API routes require the Bearer token.
+See PRODUCTION-ORDER-SETUP.txt for the exact deployment checklist.

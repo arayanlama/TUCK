@@ -1,0 +1,86 @@
+TUCK PRODUCTION ORDER SETUP
+===========================
+
+Run all commands from the TUCK folder.
+
+1. INSTALL AND AUTHENTICATE
+
+   npm install
+   npx wrangler login
+   npx wrangler whoami
+
+2. APPLY THE DATABASE UPDATE
+
+   Existing database (admin-v2-migration.sql was already applied):
+   npx wrangler d1 execute tuck-customers --remote --file=production-orders-migration.sql
+
+   Brand-new empty database only:
+   npx wrangler d1 execute tuck-customers --remote --file=schema.sql
+
+   Do not run admin-v2-migration.sql twice because its ALTER TABLE statements are one-time operations.
+
+3. SET WORKER SECRETS
+
+   npx wrangler secret put RAZORPAY_KEY_ID
+   npx wrangler secret put RAZORPAY_KEY_SECRET
+   npx wrangler secret put RAZORPAY_WEBHOOK_SECRET
+   npx wrangler secret put RESEND_API_KEY
+   npx wrangler secret put ADMIN_TOKEN
+
+   Generate ADMIN_TOKEN with a password manager or:
+   openssl rand -base64 48
+
+   ORDER_FROM_EMAIL is intentionally not a setting. The Worker always uses:
+   TUCK Orders <orders@tuckshop.in>
+   Reply-To: support@tuckshop.in
+
+4. VERIFY EMAIL DOMAIN IN RESEND
+
+   Add tuckshop.in in Resend Domains. Add the DNS records Resend provides to Cloudflare DNS, then wait until the domain is marked Verified. Do not use customer email addresses for testing until this is complete.
+
+5. CREATE THE RAZORPAY WEBHOOK
+
+   Razorpay Dashboard -> Account & Settings -> Webhooks -> Add New Webhook
+   URL: https://www.tuckshop.in/api/razorpay-webhook
+   Active events:
+   - payment.captured
+   - order.paid
+   - refund.processed
+
+   Create a long random webhook secret. Enter the same value when Wrangler asks for RAZORPAY_WEBHOOK_SECRET. Razorpay Test Mode and Live Mode have separate webhook configuration; configure Test Mode first.
+
+6. PROTECT ADMIN CUSTOMER DATA
+
+   In Cloudflare Zero Trust -> Access -> Applications, create a Self-hosted application for:
+   - www.tuckshop.in/admin.html
+   - www.tuckshop.in/api/admin/*
+
+   Allow only the TUCK owner/operator email accounts. Keep ADMIN_TOKEN enabled as the second layer required by the Admin page. Never share the token in chat, screenshots, email, or GitHub.
+
+7. DEPLOY
+
+   npm run deploy
+
+8. TEST THE WHOLE CHAIN IN RAZORPAY TEST MODE
+
+   - Place one test order with an email address you control.
+   - Confirm Razorpay shows the payment as captured.
+   - Confirm D1 shows payment_status=paid and order_status=confirmed.
+   - Confirm the order-confirmation email comes from orders@tuckshop.in.
+   - Open /admin.html, add courier/tracking, then mark the order shipped.
+   - Confirm the tracking email arrives and the order history shows the status change.
+   - Mark it delivered and confirm the delivery email.
+   - Issue a test refund and confirm D1 and the refund email update through the webhook.
+
+Useful read-only check:
+
+   npx wrangler d1 execute tuck-customers --remote --command="SELECT receipt,payment_status,order_status,razorpay_payment_id,created_at FROM orders ORDER BY id DESC LIMIT 10;"
+
+9. BEFORE SWITCHING TO LIVE MODE
+
+   - Replace the Razorpay Test keys with Live keys through Wrangler secrets.
+   - Add and test the webhook in Razorpay Live Mode.
+   - Keep automatic capture enabled unless TUCK intentionally adopts manual capture.
+   - Confirm Resend domain verification, Cloudflare Access, inventory values, policies, and the support mailbox.
+
+Customer-data operating rule: use order information only for fulfillment, support, fraud prevention, and required records. Give access only to people who need it. Do not export CSV files unless necessary; securely delete exports after use.
